@@ -1,0 +1,73 @@
+campus-chat:
+    request-log:
+        enabled: true
+
+server:
+    port: 9090
+    netty:
+        connection-timeout: 10000
+    tomcat:
+        connection-timeout: 10000
+        max-keep-alive-requests: 200
+    servlet:
+        context-path: /capi
+
+spring:
+    profiles:
+        active: dev
+    application:
+        name: campus_chat_platform
+
+    datasource:
+        driver-class-name: org.postgresql.Driver
+        url: jdbc:postgresql://115.190.249.67:15432/campus-chat
+        username: root
+        password: 32e1615de259f13b3ad7
+    kafka:
+        bootstrap-servers: 115.190.249.67:9092
+        consumer:
+            auto-offset-reset: earliest
+            key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+            value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+        producer:
+            key-serializer: org.apache.kafka.common.serialization.StringSerializer
+            value-serializer: org.apache.kafka.common.serialization.StringSerializer
+        template:
+            default-topic: campus-chat-user-group-active-topic
+
+    cloud:
+        nacos:
+            server-addr: localhost:8848
+            discovery:
+                namespace: campus-chat-${spring.profiles.active}
+                group: campus-chat-group
+            # ${prefix}-${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}
+            config:
+                server-addr: localhost:8848
+                namespace: campus-chat-${spring.profiles.active}
+                group: campus-chat-group
+                file-extension: yaml
+                refresh-enabled: true # 是否支持动态刷新
+                # 扩展配置, 用于配置多个配置文件, 获取引入其他模块的配置, 不过配置之间存在覆盖关系
+                extension-configs:
+                    -   data-id: platform-service-${spring.profiles.active}.yaml
+                        group: campus-chat-group
+                        refresh: true
+                    -   data-id: leaf-id-${spring.profiles.active}.yaml
+                        group: campus-chat-group
+                        refresh: true
+        session:
+            timeout: 10000
+
+mybatis-plus:
+    mapper-locations: classpath:mapper/*.xml
+    configuration:
+        map-underscore-to-camel-case: true
+
+
+management:
+    endpoints:
+        web:
+            exposure:
+                include: "*" #暴露所有监控端点
+

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ccj.campus.chat.mapper.UsersMapper">
+
+    <select id="getHeadTeacher" resultType="java.lang.Long">
+        SELECT users.id
+        from users
+                 join
+                 (SELECT id, class_id from users WHERE id = 1) t
+                 on users.class_id = t.class_id and users.role = 2 and users.id != t.id;
+    </select>
+</mapper>

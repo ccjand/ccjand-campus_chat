@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ccj.campus.chat.mapper.GroupMemberMapper">
+
+    <resultMap id="roomMemberById" type="java.util.HashMap">
+        <result property="key" column="room_id" jdbcType="BIGINT" javaType="java.lang.Long"/>
+        <result property="value" column="count" jdbcType="INTEGER" javaType="java.lang.Integer"/>
+    </resultMap>
+
+    <select id="getManagersOrOwner" resultType="java.lang.Long">
+        SELECT uid
+        FROM group_member
+        WHERE group_id = #{groupId}
+          AND (role = #{owner} or role = #{manager})
+    </select>
+
+    <select id="getRoomMemberById" resultMap="roomMemberById">
+        select `room_id`, `count` from room_group rg inner join
+        (
+        select count(uid) as count, group_id
+        from group_member
+        where group_id in
+        <foreach collection="needLoadRoomId" item="roomId" separator="," open="(" close=")">
+            #{roomId}
+        </foreach>
+        group by group_id
+        ) gt
+        on rg.id = gt.group_id
+    </select>
+
+    <select id="getRoomMembersInfo" resultType="com.ccj.campus.chat.dto.GetGroupMemberResp">
+        select gm.id id, uid, full_name fullName, u.avatar avatar
+        from group_member gm
+        inner join `users` u on u.id = gm.uid
+        where gm.group_id = #{groupId}
+        <if test="cursor != null">
+            and gm.id > #{cursor}
+        </if>
+        order by id asc
+        limit #{pageSize};
+    </select>
+
+    <select id="getRoomMembersInfoOne" resultType="com.ccj.campus.chat.dto.GetGroupMemberResp">
+        select gm.id id, uid, full_name fullName, u.avatar avatar
+        from group_member gm
+        inner join `users` u on u.id = gm.uid
+        where gm.group_id = #{groupId}
+        <if test="cursor != null">
+            and gm.id > #{cursor}
+        </if>
+        order by id asc
+        limit 1;
+    </select>
+
+    <select id="getUserAllGroup" resultType="java.lang.Long">
+        select rg.room_id
+        from room_group rg
+                 join
+                 (select group_id from group_member where uid = #{uid}) gm
+                 on rg.id = gm.group_id
+    </select>
+    <select id="getMembersUid" resultType="java.lang.Long">
+        select uid
+        from group_member
+        where group_id = #{groupId}
+    </select>
+</mapper>

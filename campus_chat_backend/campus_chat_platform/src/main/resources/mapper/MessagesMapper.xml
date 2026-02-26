@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ccj.campus.chat.mapper.MessagesMapper">
+
+    <resultMap id="msgReadCountMap" type="java.util.HashMap">
+        <result property="key" column="msg_id" jdbcType="BIGINT" javaType="java.lang.Long"/>
+        <result property="value" column="count" jdbcType="INTEGER" javaType="java.lang.Integer"/>
+    </resultMap>
+
+    <resultMap id="messageMap" type="com.ccj.campus.chat.entity.Messages">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="room_id" property="roomId" jdbcType="BIGINT"/>
+        <result column="from_uid" property="fromUid" jdbcType="BIGINT"/>
+        <result column="content" property="content" jdbcType="VARCHAR"/>
+        <result column="reply_msg_id" property="replyMsgId" jdbcType="BIGINT"/>
+        <result column="msg_seq" property="msgSeq" jdbcType="BIGINT"/>
+        <result column="status" property="status" jdbcType="INTEGER"/>
+        <result column="type" property="type" jdbcType="INTEGER"/>
+        <result column="gap_count" property="gapCount" jdbcType="INTEGER"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="extra" property="extra" jdbcType="JAVA_OBJECT"
+                typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO messages
+        (room_id, from_uid, content, reply_msg_id, msg_seq, status, gap_count, type, extra, create_time, update_time)
+        VALUES
+        (#{roomId}, #{fromUid}, #{content}, #{replyMsgId}, #{msgSeq}, #{status}, #{gapCount}, #{type},
+         CAST(#{extra, jdbcType=OTHER, typeHandler=com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler} AS jsonb),
+         #{createTime}, #{updateTime})
+    </insert>
+
+
+    <select id="getMsgReadCount" resultMap="msgReadCountMap">
+        select mt.msg_id msg_id, count(1) as count from contact ct
+        inner join
+        (select id msg_id, room_id, create_time from messages where room_id = #{roomId} and id in
+        <foreach collection="messageIdList" item="msgId" open="(" close=")" separator=",">
+            #{msgId}
+        </foreach>
+        ) mt
+        on ct.read_time &gt;= mt.create_time
+        where ct.room_id = #{roomId} and ct.uid != #{uid}
+        group by mt.msg_id
+    </select>
+
+
+    <!--    <select id="pullMessageList" resultType="com.ccj.chat.moon.entity.Message">-->
+    <!--        SELECT m.*-->
+    <!--        FROM message m-->
+    <!--        JOIN (-->
+    <!--            SELECT t.room_id, t.last_msg_id-->
+    <!--            FROM (-->
+    <!--            <foreach item="value" collection="roomIdLastMsgIdMap.entrySet()" index="key" separator=" UNION ALL ">-->
+    <!--                SELECT #{key} AS room_id, IFNULL(#{value},0) AS last_msg_id-->
+    <!--            </foreach>-->
+    <!--            ) t-->
+    <!--        ) tb-->
+
+    <!--        ON tb.room_id = m.room_id AND m.id > tb.last_msg_id-->
+    <!--        AND m.status = 0-->
+    <!--        ORDER BY m.id ASC-->
+    <!--        LIMIT #{batchSize};-->
+    <!--    </select>-->
+
+
+    <select id="pullMessageList" resultMap="messageMap">
+        SELECT
+        m.id,
+        m.room_id,
+        m.from_uid,
+        m.content,
+        m.reply_msg_id,
+        m.msg_seq,
+        m.status,
+        m.gap_count,
+        m.type,
+        m.extra,
+        m.create_time,
+        m.update_time
+        FROM messages m
+        JOIN (
+        SELECT t.room_id, t.last_msg_id
+        FROM (
+        <foreach item="value" collection="roomIdLastMsgIdMap.entrySet()" index="key" separator=" UNION ALL ">
+            SELECT #{key} AS room_id, COALESCE(#{value},0) AS last_msg_id
+        </foreach>
+        ) t
+        ) tb
+
+        ON tb.room_id = m.room_id AND m.id > tb.last_msg_id
+        AND m.status = 0
+        ORDER BY m.id ASC
+        LIMIT #{batchSize};
+    </select>
+
+    <select id="pullIntervalMessageList" resultMap="messageMap">
+        SELECT
+        m.id,
+        m.room_id,
+        m.from_uid,
+        m.content,
+        m.reply_msg_id,
+        m.msg_seq,
+        m.status,
+        m.gap_count,
+        m.type,
+        m.extra,
+        m.create_time,
+        m.update_time
+        FROM messages m
+        WHERE m.room_id = #{roomId}
+        <if test="lastPullMessageId != null">
+            AND m.id &gt; #{lastPullMessageId}
+        </if>
+        <if test="lastPullMessageId != null">
+            AND m.id &lt; #{lastPushMessageId}
+        </if>
+        AND m.status = 0
+        ORDER BY m.id ASC
+        LIMIT #{batchSize};
+    </select>
+    <select id="getByMsgId" resultMap="messageMap">
+        select *
+        from messages
+        where id = #{id}
+    </select>
+
+    <update id="updateMessageFieldsById">
+        UPDATE messages
+        <set>
+            <if test="content != null">
+                content = #{content},
+            </if>
+            <if test="replyMsgId != null">
+                reply_msg_id = #{replyMsgId},
+            </if>
+            <if test="gapCount != null">
+                gap_count = #{gapCount},
+            </if>
+            <if test="type != null">
+                type = #{type},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="extraJson != null">
+                extra = CAST(#{extraJson} AS jsonb),
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+</mapper>
