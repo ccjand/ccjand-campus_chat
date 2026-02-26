@@ -1,0 +1,5 @@
+#NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
+#Tue Jan 27 22:26:13 CST 2026
+netty-transport-native-epoll-4.1.76.Final-linux-x86_64.jar>huaweicloud-central=
+netty-transport-native-epoll-4.1.76.Final.pom>huaweicloud-central=
+netty-transport-native-epoll-4.1.76.Final-linux-aarch_64.jar>huaweicloud-central=

@@ -1,0 +1,114 @@
+{
+	"easycom": {
+		"autoscan": true,
+		"custom": {
+			"^u-(.*)": "uview-plus/components/u-$1/u-$1.vue",
+			"^up-(.*)": "uview-plus/components/u-$1/u-$1.vue"
+		}
+	},
+	"pages": [
+		{
+			"path": "pages/login/index",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/index/index",
+			"style": {
+				"navigationBarTitleText": "消息",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/chat/index",
+			"style": {
+				"navigationBarTitleText": "聊天",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/contacts/index",
+			"style": {
+				"navigationBarTitleText": "通讯录",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/workbench/index",
+			"style": {
+				"navigationBarTitleText": "工作台",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/workbench/leave/index",
+			"style": {
+				"navigationBarTitleText": "请假",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/workbench/leave/history",
+			"style": {
+				"navigationBarTitleText": "请假历史",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/workbench/checkin/index",
+			"style": {
+				"navigationBarTitleText": "签到",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/workbench/exam/index",
+			"style": {
+				"navigationBarTitleText": "期末考试",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/workbench/supplement/index",
+			"style": {
+				"navigationBarTitleText": "补签申请",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/my/index",
+			"style": {
+				"navigationBarTitleText": "我的",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/my/info/index",
+			"style": {
+				"navigationBarTitleText": "个人信息",
+				"navigationBarBackgroundColor": "#fff"
+			}
+		},
+		{
+			"path": "pages/my/password/index",
+			"style": {
+				"navigationBarTitleText": "修改密码",
+				"navigationBarBackgroundColor": "#fff"
+			}
+		},
+		{
+			"path": "pages/my/auth/index",
+			"style": {
+				"navigationBarTitleText": "我的认证",
+				"navigationBarBackgroundColor": "#fff"
+			}
+		}
+	],
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "消息",
+		"navigationBarBackgroundColor": "#F3F3F3",
+		"backgroundColor": "#F3F3F3"
+	}
+}
